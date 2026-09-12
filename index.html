@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>配信タスクウィジェット ジェネレーター</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=M+PLUS+Rounded+1c:wght@500;700&family=Kosugi+Maru&family=Yusei+Magic&family=Noto+Sans+JP:wght@500;700&family=Shippori+Mincho:wght@500;700&family=DotGothic16&family=Poppins:wght@500;700&family=Playfair+Display:wght@500;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #ff8a7a;
+    --bg: #faf6f0;
+    --ink: #2b2622;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 80px;
+  }
+
+  .tally {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 8px;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+  }
+
+  p.lead {
+    opacity: 0.65;
+    font-size: 13px;
+    margin: 0 0 28px;
+    text-align: center;
+    max-width: 480px;
+    line-height: 1.7;
+  }
+
+  .layout {
+    display: flex;
+    gap: 28px;
+    width: 100%;
+    max-width: 900px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  form {
+    flex: 1 1 320px;
+    max-width: 360px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  form label {
+    display: block;
+    font-size: 12px;
+    opacity: 0.7;
+    margin: 14px 0 4px;
+  }
+
+  form label:first-child { margin-top: 0; }
+
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #e2dcd2;
+    font-size: 13px;
+  }
+
+  input[type="text"]:focus-visible,
+  input[type="number"]:focus-visible,
+  select:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  input[type="range"] { width: 100%; }
+
+  input[type="color"] {
+    width: 100%;
+    height: 32px;
+    border: none;
+    background: none;
+    padding: 0;
+  }
+
+  .row2 {
+    display: flex;
+    gap: 10px;
+  }
+
+  .row2 > div { flex: 1; }
+
+  .preview-wrap {
+    flex: 1 1 380px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .preview-frame {
+    width: 100%;
+    max-width: 420px;
+    height: 220px;
+    border-radius: 16px;
+    overflow: hidden;
+    background:
+      linear-gradient(45deg, #ddd 25%, transparent 25%),
+      linear-gradient(-45deg, #ddd 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #ddd 75%),
+      linear-gradient(-45deg, transparent 75%, #ddd 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .preview-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .url-box {
+    width: 100%;
+    max-width: 420px;
+    margin-top: 16px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  .url-box label {
+    font-size: 12px;
+    opacity: 0.7;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .url-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .url-row input {
+    flex: 1;
+    font-size: 12px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #e2dcd2;
+    background: #f7f4ef;
+  }
+
+  .url-row button {
+    background: var(--accent);
+    border: none;
+    color: #2b2622;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 0 14px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .url-row button:hover { filter: brightness(1.06); }
+
+  .steps {
+    max-width: 420px;
+    margin-top: 18px;
+    font-size: 12px;
+    opacity: 0.7;
+    line-height: 1.9;
+  }
+
+  .steps b { opacity: 1; }
+
+  footer {
+    margin-top: 40px;
+    width: 100%;
+    text-align: center;
+    color: #b1a498;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+
+  footer p { margin: 3px 0; }
+
+  footer a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  footer a:hover {
+    color: rgb(143, 132, 122);
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<h1><span class="tally"></span>配信タスクウィジェット ジェネレーター</h1>
+<p class="lead">OBS上でタスク管理ができるツールです。<br>
+  ➀を配信画面用のOBS「ブラウザ」ソースに、<br>
+  ➁を操作用の「カスタムブラウザドック」に貼って使います。<br>
+  タスクの追加・チェックは➁のドック側から行えます。
+</p>
+
+<div class="layout">
+  <form onsubmit="return false;">
+    <label>タイトル文字</label>
+    <input type="text" id="g-title" value="TODO">
+
+    <label>フォント</label>
+    <select id="g-font-select">
+      <option value="Zen Maru Gothic" style="font-family:'Zen Maru Gothic';">Zen丸ゴシック</option>
+      <option value="M PLUS Rounded 1c" style="font-family:'M PLUS Rounded 1c';">Mプラス Rounded</option>
+      <option value="Kosugi Maru" style="font-family:'Kosugi Maru';">小杉丸ゴシック</option>
+      <option value="Yusei Magic" style="font-family:'Yusei Magic';">游星マジック</option>
+      <option value="Noto Sans JP" style="font-family:'Noto Sans JP';">Noto Sans JP</option>
+      <option value="Shippori Mincho" style="font-family:'Shippori Mincho';">しっぽり明朝</option>
+      <option value="DotGothic16" style="font-family:'DotGothic16';">ドットゴシック16</option>
+      <option value="Poppins" style="font-family:'Poppins';">Poppins</option>
+      <option value="Playfair Display" style="font-family:'Playfair Display';">Playfair Display</option>
+      <option value="Courier Prime" style="font-family:'Courier Prime';">Courier Prime</option>
+      <option value="Yu Gothic UI" style="font-family:'Yu Gothic UI';">游ゴシック UI</option>
+      <option value="Meiryo" style="font-family:'Meiryo';">メイリオ</option>
+      <option value="Hiragino Kaku Gothic ProN" style="font-family:'Hiragino Kaku Gothic ProN';">ヒラギノ角ゴ ProN</option>
+      <option value="BIZ UDPGothic" style="font-family:'BIZ UDPGothic';">BIZ UDPゴシック</option>
+      <option value="MS PGothic" style="font-family:'MS PGothic';">MS Pゴシック</option>
+      <option value="Yu Mincho" style="font-family:'Yu Mincho';">游明朝</option>
+      <option value="Segoe UI" style="font-family:'Segoe UI';">Segoe UI</option>
+      <option value="Arial" style="font-family:'Arial';">Arial</option>
+      <option value="__custom__" id="opt-custom">自由入力…</option>
+    </select>
+    <button type="button" id="load-local-fonts" style="margin-top:6px; width:100%; padding:8px; border-radius:8px; border:1px solid #e2dcd2; background:#f7f4ef; cursor:pointer; font-size:12px;">🔍 このPCのフォントを読み込む</button>
+    <p id="local-font-status" class="note" style="opacity:.55; font-size:11px; margin:4px 0 0; line-height:1.5;"></p>
+    <input type="text" id="g-font-custom" placeholder="フォント名を入力（PCに入っている名前 or Googleフォント名）" style="display:none; margin-top:6px;">
+    <p class="note" style="opacity:.55; font-size:11px; margin:4px 0 0; line-height:1.5;">
+      一部のフォントは配信者本人のPCに入っていれば使われます。無ければ自動でお使いのPC標準フォントに置き換わります。
+    </p>
+    <div id="font-preview" style="margin-top:10px; padding:12px 14px; border-radius:10px; background:#f7f4ef; border:1px solid #e2dcd2; font-size:20px; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">配信がんばるぞ！ABC123</div>
+
+    <div class="row2">
+      <div>
+        <label>文字色</label>
+        <input type="color" id="g-color" value="#3a2f2a">
+      </div>
+      <div>
+        <label>アクセント色</label>
+        <input type="color" id="g-accent" value="#ff8a7a">
+      </div>
+    </div>
+
+    <label>ダイアログの背景色</label>
+    <input type="color" id="g-bgcolor" value="#fffaf5">
+
+    <label>背景の不透明度: <span id="g-opacity-label">72%</span></label>
+    <input type="range" id="g-opacity" min="0" max="100" value="72">
+  </form>
+
+  <div class="preview-wrap">
+    <div class="preview-frame">
+      <iframe id="preview" src=""></iframe>
+    </div>
+    <p class="note" style="opacity:.55; font-size:11px; margin:8px 0 0; line-height:1.6; max-width:420px; text-align:center;">
+      ※OBS側でブラウザソースの幅を変えると、それに合わせて文字サイズ・折り返し位置も自動で調整されます。
+    </p>
+
+    <div class="url-box">
+      <label>➀ 配信画面用（OBSの「ブラウザ」ソースに貼る／表示専用）</label>
+      <div class="url-row">
+        <input type="text" id="g-url-display" readonly>
+        <button onclick="copyUrl('g-url-display')">コピー</button>
+      </div>
+    </div>
+
+    <div class="url-box">
+      <label>➁ 操作用（OBSの「カスタムブラウザドック」に貼る／チェック操作用）</label>
+      <div class="url-row">
+        <input type="text" id="g-url-control" readonly>
+        <button onclick="copyUrl('g-url-control')">コピー</button>
+      </div>
+    </div>
+
+    <div class="steps">
+      <b>使い方</b><br>
+      1. 好みの見た目に調整する<br>
+      2. ➀をコピーし、OBSで「ブラウザ」ソースを追加してURL欄に貼る（幅・高さはお好みでOK）<br>
+      3. ➁をコピーし、OBSメニューの「ドック(D)」→「カスタムブラウザドック」からURLを登録する（ドック名はなんでもOK）<br>
+      4. 配信中はドック（➁）側でタスクの追加・チェックを行うと、配信画面（➀）にリアルタイムで反映されます
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Created by そぼろ忍</p>
+  <p><a href="https://x.com/soboronin" target="_blank" rel="noopener noreferrer">X: @soboronin</a></p>
+</footer>
+
+<script>
+// widget.html と同じ階層に置く想定の相対パス
+const WIDGET_PATH = "widget.html";
+let previewReady = false;
+
+function currentParams(){
+  const $ = id => document.getElementById(id);
+  const title = $('g-title').value || 'TODO';
+  const fontSelect = $('g-font-select').value;
+  const font = (fontSelect === '__custom__') ? ($('g-font-custom').value || 'sans-serif') : fontSelect;
+  const color = $('g-color').value.replace('#','');
+  const accent = $('g-accent').value.replace('#','');
+  const bg = $('g-bgcolor').value.replace('#','');
+  const opacity = $('g-opacity').value;
+  return { title, font, color, accent, bg, opacity };
+}
+
+function updatePreviewUI(params){
+  const $ = id => document.getElementById(id);
+  $('g-font-select').style.fontFamily = (params.font === $('g-font-custom').value && $('g-font-select').value === '__custom__') ? 'inherit' : `'${params.font}'`;
+  $('g-font-custom').style.fontFamily = `'${params.font}'`;
+  $('font-preview').style.fontFamily = `'${params.font}', sans-serif`;
+  $('g-opacity-label').textContent = params.opacity + '%';
+}
+
+function build(){
+  const params = currentParams();
+  updatePreviewUI(params);
+
+  const displayUrl = new URL(WIDGET_PATH, location.href).toString() + '?' +
+    new URLSearchParams({ ...params, mode: 'display' }).toString();
+  const controlUrl = new URL(WIDGET_PATH, location.href).toString() + '?' +
+    new URLSearchParams(params).toString();
+
+  document.getElementById('g-url-display').value = displayUrl;
+  document.getElementById('g-url-control').value = controlUrl;
+
+  const iframe = document.getElementById('preview');
+  if(!previewReady){
+    // 初回だけ読み込む。以降はpostMessageで直接更新するのでリロードしない(チラつき防止)
+    iframe.src = displayUrl;
+  }else{
+    iframe.contentWindow.postMessage({ type: 'obs-widget-preview', params }, '*');
+  }
+}
+
+document.getElementById('preview').addEventListener('load', () => {
+  previewReady = true;
+});
+
+function copyUrl(id){
+  const el = document.getElementById(id);
+  el.select();
+  navigator.clipboard.writeText(el.value).catch(()=>{ document.execCommand('copy'); });
+}
+
+['g-title','g-color','g-accent','g-bgcolor','g-opacity','g-font-custom'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', build);
+});
+
+document.getElementById('g-font-select').addEventListener('change', e => {
+  document.getElementById('g-font-custom').style.display = (e.target.value === '__custom__') ? 'block' : 'none';
+  build();
+});
+
+document.getElementById('load-local-fonts').addEventListener('click', async () => {
+  const status = document.getElementById('local-font-status');
+  if(!('queryLocalFonts' in window)){
+    status.textContent = 'お使いのブラウザは非対応です（Chrome/Edgeでこのページを開いてください）。';
+    return;
+  }
+  try{
+    status.textContent = '読み込み中……（ブラウザの許可ダイアログが出たら「許可」を選んでください）';
+    const fonts = await window.queryLocalFonts();
+    const families = [...new Set(fonts.map(f => f.family))].sort((a,b) => a.localeCompare(b, 'ja'));
+    const select = document.getElementById('g-font-select');
+    const customOption = document.getElementById('opt-custom');
+    families.forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      opt.style.fontFamily = `'${name}'`;
+      select.insertBefore(opt, customOption);
+    });
+    status.textContent = `${families.length}個のフォントを読み込みました。プルダウンから選べます。`;
+  }catch(err){
+    status.textContent = '読み込みできませんでした（許可がキャンセルされたか、非対応の環境です）。';
+  }
+});
+
+build();
+</script>
+</body>
+</html>
