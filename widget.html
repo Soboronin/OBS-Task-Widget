@@ -12,6 +12,7 @@
     --bg-color: 255, 250, 245;
     --bg-opacity: 0.72;
     --radius: clamp(10px, 3vw, 20px);
+    --check-offset: 0px;
   }
 
   html, body {
@@ -56,7 +57,7 @@
 
   li.task {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 10px;
     font-size: var(--font-size);
     line-height: 1.35;
@@ -66,7 +67,8 @@
     flex: 0 0 auto;
     width: 1.05em;
     height: 1.05em;
-    margin-top: 0.15em;
+    margin: 0;
+    transform: translateY(var(--check-offset));
     box-sizing: border-box;
     border-radius: 6px;
     border: 2px solid var(--accent-color);
@@ -111,7 +113,7 @@
     opacity: 0;
     cursor: pointer;
     font-size: calc(var(--font-size) * 0.8);
-    line-height: 1.35;
+    line-height: 1;
     padding: 0 2px;
     transition: opacity 0.15s;
   }
@@ -273,7 +275,8 @@ let state = {
   textColor: "#3a2f2a",
   accent: "#ff8a7a",
   bgColor: "#fffaf5",
-  bgOpacity: 72
+  bgOpacity: 72,
+  checkOffset: 0
 };
 
 function loadLocal() {
@@ -306,6 +309,7 @@ function applyParams(p, isUrlSearchParams) {
   if (get('accent') !== undefined) state.accent = '#' + String(get('accent')).replace('#', '');
   if (get('bg') !== undefined) state.bgColor = '#' + String(get('bg')).replace('#', '');
   if (get('opacity') !== undefined) state.bgOpacity = parseInt(get('opacity'), 10);
+  if (get('checkOffset') !== undefined) state.checkOffset = parseInt(get('checkOffset'), 10) || 0;
 }
 
 function applyUrlParams() {
@@ -367,6 +371,7 @@ function applyStyles() {
   root.setProperty('--accent-color', state.accent);
   root.setProperty('--bg-color', hexToRgbTriplet(state.bgColor));
   root.setProperty('--bg-opacity', (state.bgOpacity / 100).toString());
+  root.setProperty('--check-offset', (state.checkOffset || 0) + 'px');
   document.getElementById('widget-title').textContent = state.title;
   loadGoogleFont(state.font);
 }

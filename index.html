@@ -293,6 +293,12 @@
 
     <label>背景の不透明度: <span id="g-opacity-label">72%</span></label>
     <input type="range" id="g-opacity" min="0" max="100" value="72">
+
+    <label>チェックボックスの上下位置調整: <span id="g-checkoffset-label">0px</span></label>
+    <input type="range" id="g-checkoffset" min="-12" max="12" value="0">
+    <p class="note" style="opacity:.55; font-size:11px; margin:4px 0 0; line-height:1.5;">
+      フォントによってはチェックボックスと文字の縦位置がズレて見えることがあります。プレビューを見ながら微調整してください。
+    </p>
   </form>
 
   <div class="preview-wrap">
@@ -322,7 +328,7 @@
     <div class="steps">
       <b>使い方</b><br>
       1. 好みの見た目に調整する<br>
-      2. ➀をコピーし、OBSで「ブラウザ」ソースを追加してURL欄に貼る（幅・高さはお好みでOK）<br>
+      2. ➀をコピーし、OBSで「ブラウザ」ソースを追加してURL欄に貼る（幅・高さはお好みで）<br>
       3. ➁をコピーし、OBSメニューの「ドック(D)」→「カスタムブラウザドック」からURLを登録する（ドック名はなんでもOK）<br>
       4. 配信中はドック（➁）側でタスクの追加・チェックを行うと、配信画面（➀）にリアルタイムで反映されます
     </div>
@@ -348,7 +354,8 @@ function currentParams(){
   const accent = $('g-accent').value.replace('#','');
   const bg = $('g-bgcolor').value.replace('#','');
   const opacity = $('g-opacity').value;
-  return { title, font, color, accent, bg, opacity };
+  const checkOffset = $('g-checkoffset').value;
+  return { title, font, color, accent, bg, opacity, checkOffset };
 }
 
 function updatePreviewUI(params){
@@ -357,6 +364,7 @@ function updatePreviewUI(params){
   $('g-font-custom').style.fontFamily = `'${params.font}'`;
   $('font-preview').style.fontFamily = `'${params.font}', sans-serif`;
   $('g-opacity-label').textContent = params.opacity + '%';
+  $('g-checkoffset-label').textContent = params.checkOffset + 'px';
 }
 
 function build(){
@@ -390,7 +398,7 @@ function copyUrl(id){
   navigator.clipboard.writeText(el.value).catch(()=>{ document.execCommand('copy'); });
 }
 
-['g-title','g-color','g-accent','g-bgcolor','g-opacity','g-font-custom'].forEach(id=>{
+['g-title','g-color','g-accent','g-bgcolor','g-opacity','g-checkoffset','g-font-custom'].forEach(id=>{
   document.getElementById(id).addEventListener('input', build);
 });
 
