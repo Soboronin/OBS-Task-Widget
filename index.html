@@ -112,6 +112,12 @@
     padding: 0;
   }
 
+  .hex-input {
+    margin-top: 4px;
+    font-family: monospace;
+    text-transform: uppercase;
+  }
+
   .row2 {
     display: flex;
     gap: 10px;
@@ -272,15 +278,18 @@
       <div>
         <label>文字色</label>
         <input type="color" id="g-color" value="#3a2f2a">
+        <input type="text" id="g-color-hex" class="hex-input" value="#3a2f2a" maxlength="7">
       </div>
       <div>
         <label>アクセント色</label>
         <input type="color" id="g-accent" value="#ff8a7a">
+        <input type="text" id="g-accent-hex" class="hex-input" value="#ff8a7a" maxlength="7">
       </div>
     </div>
 
     <label>ダイアログの背景色</label>
     <input type="color" id="g-bgcolor" value="#fffaf5">
+    <input type="text" id="g-bgcolor-hex" class="hex-input" value="#fffaf5" maxlength="7">
 
     <label>背景の不透明度: <span id="g-opacity-label">72%</span></label>
     <input type="range" id="g-opacity" min="0" max="100" value="72">
@@ -383,6 +392,26 @@ function copyUrl(id){
 
 ['g-title','g-color','g-accent','g-bgcolor','g-opacity','g-font-custom'].forEach(id=>{
   document.getElementById(id).addEventListener('input', build);
+});
+
+// 色ピッカーとHEXコード入力欄を双方向に同期する
+const isValidHex = (v) => /^#[0-9a-fA-F]{6}$/.test(v);
+[['g-color','g-color-hex'], ['g-accent','g-accent-hex'], ['g-bgcolor','g-bgcolor-hex']].forEach(([pickerId, hexId]) => {
+  const picker = document.getElementById(pickerId);
+  const hex = document.getElementById(hexId);
+
+  picker.addEventListener('input', () => {
+    hex.value = picker.value;
+  });
+
+  hex.addEventListener('input', () => {
+    let v = hex.value.trim();
+    if(v && !v.startsWith('#')) v = '#' + v;
+    if(isValidHex(v)){
+      picker.value = v;
+      build();
+    }
+  });
 });
 
 document.getElementById('g-font-select').addEventListener('change', e => {
