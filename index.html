@@ -258,6 +258,15 @@
     <label>タイトル文字</label>
     <input type="text" id="g-title" value="TODO">
 
+    <label>リストID（2人分など、複数のリストを使うとき）</label>
+    <input type="text" id="g-list" placeholder="空欄でOK／例: a, b" maxlength="20">
+    <p class="note" style="opacity:.55; font-size:11px; margin:4px 0 0; line-height:1.5;">
+      リストごとに別々のタスクが保存されます。2人目は違うIDにして、もう一度URLを作ってください（半角英数字がおすすめ）。
+    </p>
+
+    <label>文字サイズ: <span id="g-size-label">24px</span></label>
+    <input type="range" id="g-size" min="12" max="72" value="24">
+
     <label>フォント</label>
     <select id="g-font-select">
       <option value="Zen Maru Gothic" style="font-family:'Zen Maru Gothic';">Zen丸ゴシック</option>
@@ -320,7 +329,7 @@
       <iframe id="preview" src=""></iframe>
     </div>
     <p class="note" style="opacity:.55; font-size:11px; margin:8px 0 0; line-height:1.6; max-width:420px; text-align:center;">
-      ※OBS側でブラウザソースの幅を変えると、それに合わせて文字サイズ・折り返し位置も自動で調整されます。
+      ※OBS側でブラウザソースの幅を変えると、文字サイズはそのままで枠の幅だけが変わり、文字は自動で折り返されます。
     </p>
 
     <div class="url-box">
@@ -358,6 +367,7 @@
 // widget.html と同じ階層に置く想定の相対パス
 const WIDGET_PATH = "widget.html";
 let previewReady = false;
+let lastList = '';
 
 function currentParams(){
   const $ = id => document.getElementById(id);
@@ -369,7 +379,11 @@ function currentParams(){
   const bg = $('g-bgcolor').value.replace('#','');
   const opacity = $('g-opacity').value;
   const checkOffset = $('g-checkoffset').value;
-  return { title, font, color, accent, bg, opacity, checkOffset };
+  const size = $('g-size').value;
+  const list = $('g-list').value.trim();
+  const params = { title, font, color, accent, bg, opacity, checkOffset, size };
+  if(list) params.list = list; // 空欄なら付けない（従来のタスクをそのまま使える）
+  return params;
 }
 
 function updatePreviewUI(params){
@@ -379,6 +393,7 @@ function updatePreviewUI(params){
   $('font-preview').style.fontFamily = `'${params.font}', sans-serif`;
   $('g-opacity-label').textContent = params.opacity + '%';
   $('g-checkoffset-label').textContent = params.checkOffset + 'px';
+  $('g-size-label').textContent = params.size + 'px';
 }
 
 function build(){
@@ -394,7 +409,10 @@ function build(){
   document.getElementById('g-url-control').value = controlUrl;
 
   const iframe = document.getElementById('preview');
-  if(!previewReady){
+  const listChanged = (params.list || '') !== lastList;
+  lastList = params.list || '';
+  if(!previewReady || listChanged){
+    previewReady = false;
     // 初回だけ読み込む。以降はpostMessageで直接更新するのでリロードしない(チラつき防止)
     iframe.src = displayUrl;
   }else{
@@ -412,7 +430,7 @@ function copyUrl(id){
   navigator.clipboard.writeText(el.value).catch(()=>{ document.execCommand('copy'); });
 }
 
-['g-title','g-color','g-accent','g-bgcolor','g-opacity','g-checkoffset','g-font-custom'].forEach(id=>{
+['g-title','g-list','g-size','g-color','g-accent','g-bgcolor','g-opacity','g-checkoffset','g-font-custom'].forEach(id=>{
   document.getElementById(id).addEventListener('input', build);
 });
 

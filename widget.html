@@ -6,12 +6,12 @@
 <style>
   :root {
     --font-family: 'Zen Maru Gothic', sans-serif;
-    --font-size: clamp(13px, 4.4vw, 28px);
+    --font-size: 24px; /* 画面幅に連動させず固定。size= パラメータで変更 */
     --text-color: #3a2f2a;
     --accent-color: #ff8a7a;
     --bg-color: 255, 250, 245;
     --bg-opacity: 0.72;
-    --radius: clamp(10px, 3vw, 20px);
+    --radius: 0.8em;
     --check-offset: 0px;
   }
 
@@ -28,9 +28,10 @@
   }
 
   #widget {
-    display: inline-block;
-    width: min(90vw, 480px);
-    padding: clamp(12px, 4vw, 26px) clamp(14px, 4.5vw, 30px) clamp(10px, 3.5vw, 24px);
+    display: block;
+    width: 100%; /* OBSで設定したブラウザソースの幅いっぱいに広がる（文字サイズは変わらない） */
+    font-size: var(--font-size);
+    padding: 0.7em 0.9em 0.6em;
     border-radius: var(--radius);
     background: rgba(var(--bg-color), var(--bg-opacity));
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
@@ -262,7 +263,10 @@
 </div>
 
 <script>
-const STORAGE_KEY = "obs_task_widget_v2";
+// list=xxx を付けると、そのIDごとに別々のタスクリストとして保存される（2人分表示したいとき用）
+// 未指定なら従来どおりのキーなので、今までのタスクはそのまま残る
+const LIST_ID = new URLSearchParams(location.search).get('list') || '';
+const STORAGE_KEY = "obs_task_widget_v2" + (LIST_ID ? "_" + LIST_ID : "");
 
 let state = {
   title: "TODO",
@@ -271,7 +275,7 @@ let state = {
     { id: crypto.randomUUID(), text: "今日の目標を話す", done: false }
   ],
   font: "Zen Maru Gothic",
-  fontSize: 20,
+  fontSize: 24,
   textColor: "#3a2f2a",
   accent: "#ff8a7a",
   bgColor: "#fffaf5",
@@ -367,6 +371,7 @@ function hexToRgbTriplet(hex) {
 function applyStyles() {
   const root = document.documentElement.style;
   root.setProperty('--font-family', `'${state.font}', sans-serif`);
+  root.setProperty('--font-size', state.fontSize + 'px');
   root.setProperty('--text-color', state.textColor);
   root.setProperty('--accent-color', state.accent);
   root.setProperty('--bg-color', hexToRgbTriplet(state.bgColor));
